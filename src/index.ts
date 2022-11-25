@@ -1,8 +1,9 @@
-import { streamData } from "./stream/stream";
+import { mempool } from "./core";
 
-streamData
 
-const main = async () => {
-  await streamData();
+const Main = async () => {
+  await mempool.monitor()
 };
-main();
+
+
+Main();
