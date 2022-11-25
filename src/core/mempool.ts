@@ -3,7 +3,6 @@ import { config, walletAddress } from "../config";
 import { UNISWAP_ABI } from "../constants";
 import { overloads } from "../utils/interfaces";
 import { TOKENS_TO_MONITOR } from "../constants/tokens";
-import { swapExactETHForTokens } from "../types";
 import { ethContract, provider } from "../common/common";
 import { isHoneypot } from "./honeypot";
 import { approve } from "./approve";
@@ -59,7 +58,7 @@ class Mempool {
     let maxFeePerGas: number | undefined;
     let maxPriorityFeePerGas: number | undefined;
     let overloads: overloads;
-    const value = ethers.utils.parseUnits(
+    let value = ethers.utils.parseUnits(
       config.ETH_BUY_AMOUNT.toString(),
       "ether"
     );
@@ -69,7 +68,7 @@ class Mempool {
       maxPriorityFeePerGas = parseInt(receipt.maxPriorityFeePerGas._hex!, 16);
     }
 
-    let current_nonce = provider.getTransactionCount(
+    let current_nonce = await provider.getTransactionCount(
       process.env.WALLET_ADDRESS!
     );
 
@@ -113,19 +112,17 @@ class Mempool {
       let rugStatus = await isHoneypot(token);
       if (rugStatus === false) {
         console.log("Not a rug");
-        let path = [config.WETH_ADDRESS, token];
-        if (path) {
-          //Buy the token
 
-          let amountOut = ethers.utils.parseEther("0");
-          let deadline = Math.floor(Date.now() / 1000) + 60 * 2;
-          const buy_tx = await ethContract.swapExactETHForTokens(
-            amountOut,
-            path,
-            walletAddress,
-            deadline,
-            overloads
-          );
+        if (token) {
+          let buyPath = [config.WETH_ADDRESS, token];
+          if (buyPath) {
+            //Buy the token
+
+            let buyTxData = await buyToken(buyPath, overloads);
+            if (buyTxData.success === true) {
+              await approve(token, overloads);
+            }
+          }
         }
       } else {
         console.log("Its a rug");
@@ -138,9 +135,12 @@ class Mempool {
         let buyPath = [config.WETH_ADDRESS, token];
 
         if (buyPath) {
-          const buyTxData = await buyToken(buyPath, overloads);
+          let buyTxData = await buyToken(buyPath, overloads);
           console.log("Successs our buyTxData is=:", buyTxData);
+
           if (buyTxData.success === true) {
+            delete overloads.value;
+            overloads["nonce"] += 1;
             await approve(token, overloads);
           }
         }

@@ -16,15 +16,13 @@ let MAX_INT =
 //approve token for transfer
 export const approve = async (token: string, overloads: overloads) => {
   try {
-    delete overloads.value;
-    overloads["nonce"]! += 1;
     const contract = new ethers.Contract(token, abi, account);
     const tx = await contract.approve(
       config.UNISWAP_ROUTER,
       MAX_INT,
       overloads
     );
-    console.log("*****Approve*****", tx);
+    // console.log("*****Approve*****", tx);
     console.log("Approve tx", tx.hash);
     return { success: true, data: `${tx.hash}` };
   } catch (error) {
