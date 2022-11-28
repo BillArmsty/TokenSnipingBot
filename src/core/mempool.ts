@@ -131,19 +131,26 @@ class Mempool {
       console.log("method name", methodName);
       let token = decodedData.args.token.toLowerCase();
 
-      if (token) {
-        let buyPath = [config.WETH_ADDRESS, token];
+      let rugStatus = await isHoneypot(token);
+      if (rugStatus === false) {
+        console.log("Not a rug");
 
-        if (buyPath) {
-          let buyTxData = await buyToken(buyPath, overloads);
-          console.log("Successs our buyTxData is=:", buyTxData);
+        if (token) {
+          let buyPath = [config.WETH_ADDRESS, token];
 
-          if (buyTxData.success === true) {
-            delete overloads.value;
-            overloads["nonce"] += 1;
-            await approve(token, overloads);
+          if (buyPath) {
+            let buyTxData = await buyToken(buyPath, overloads);
+            console.log("Successs our buyTxData is=:", buyTxData);
+
+            if (buyTxData.success === true) {
+              delete overloads.value;
+              overloads["nonce"] += 1;
+              await approve(token, overloads);
+            }
           }
         }
+      } else {
+        console.log("Its a rug");
       }
     }
   };

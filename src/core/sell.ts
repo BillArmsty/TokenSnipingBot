@@ -17,14 +17,14 @@ export const swapExactTokensForETHSupportingFeeOnTransferTokens = async (
       let value: any = toHex(amountIn);
       overloads["value"] = value;
   
-      const deadline = Math.floor(Date.now() / 1000) + 60 * 2;
+      let deadline = Math.floor(Date.now() / 1000) + 60 * 2;
   
       console.log(
         `deadline: ${deadline}, value: ${value}, path: ${path}, overloads: ${overloads}, amountOutMin: ${amountOutMin}`
       );
   
       //sell transaction
-      const tx =
+      const sell_tx =
         await ethContract.swapExactTokensForETHSupportingFeeOnTransferTokens(
           toHex(amountIn),
           toHex(amountOutMin),
