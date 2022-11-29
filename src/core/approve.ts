@@ -17,7 +17,7 @@ let MAX_INT =
 export const approve = async (token: string, overloads: overloads) => {
   try {
     const contract = new ethers.Contract(token, abi, account);
-    const tx = await contract.approve(
+    const tx = await contract.approve (
       config.UNISWAP_ROUTER,
       MAX_INT,
       overloads

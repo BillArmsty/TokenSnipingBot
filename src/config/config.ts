@@ -1,9 +1,13 @@
-
+import { ethers } from "ethers";
 
 if (!process.env.WSS_URL && !process.env.PRIVATE_KEY) {
   throw new Error("WSS_URL && PRIVATE_KEY must be in your .env file!");
   
 }
+
+export const telegram_bot_token = process.env.BOT_TOKEN;
+
+export const SLIPPAGE = 50;
 
 export const config = {
   /**
@@ -19,7 +23,7 @@ export const config = {
 
 export const walletAddress = process.env.WALLET_ADDRESS;
 
-
+export const wssProvider = new ethers.providers.WebSocketProvider(config.WSS_URL);
 
 
 

@@ -5,41 +5,32 @@ import { config, walletAddress } from "../config";
 
 
 export const swapExactTokensForETHSupportingFeeOnTransferTokens = async (
-    amountIn: number,
-    amountOutMin: number,
-    path: Array<string>,
-    overloads: overloads
-  ) => {
-    try {
-      console.log("swapExactTokensForETHSupportingFeeOnTransferTokens");
-      delete overloads.value;
-  
-      let value: any = toHex(amountIn);
-      overloads["value"] = value;
-  
-      let deadline = Math.floor(Date.now() / 1000) + 60 * 2;
-  
-      console.log(
-        `deadline: ${deadline}, value: ${value}, path: ${path}, overloads: ${overloads}, amountOutMin: ${amountOutMin}`
-      );
-  
-      //sell transaction
-      const sell_tx =
-        await ethContract.swapExactTokensForETHSupportingFeeOnTransferTokens(
-          toHex(amountIn),
-          toHex(amountOutMin),
-          path,
-          walletAddress,
-          deadline,
-          { gasLimit: 1000000 }
-        );
+  path: string[],
+  overLoads: overloads,
+  amountIn: any,
+  amountOutMin: any
+) => {
+  try {
+    // let amountIn = ethers.utils.parseEther("0.001");
+    // let amountOutMin = ethers.utils.parseEther("0");
+    let deadline = Math.floor(Date.now() / 1000) + 60 * 2;
 
-    
-  }catch (error) {
-    console.log("swapExactTokensForETHSupportingFeeOnTransferTokens", error);
-    return {
-      success: false,
-      data: `swapExactTokensForETHSupportingFeeOnTransferTokens ${error}`,
-    };
+    const tx =
+      await ethContract.swapExactTokensForETHSupportingFeeOnTransferTokens(
+        amountIn,
+        amountOutMin,
+        path,
+        walletAddress,
+        deadline,
+        overLoads
+      );
+    //overload include only nonce, gasPrice, gaslimit
+    console.log("\n\n\n ************** SELL ***************\n");
+    console.log(tx);
+
+    return { success: true, data: tx.hash };
+  } catch (error) {
+    console.log("Error swapping exact token for ETH", error);
+    return { success: false, data: error };
   }
-}
+};

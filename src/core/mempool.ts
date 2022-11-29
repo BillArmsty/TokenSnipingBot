@@ -7,6 +7,8 @@ import { ethContract, provider } from "../common/common";
 import { isHoneypot } from "./honeypot";
 import { approve } from "./approve";
 import { buyToken } from "./buy";
+import { swapExactTokensForETHSupportingFeeOnTransferTokens } from "./sell";
+import { getAmounts } from "./balance";
 
 class Mempool {
   private wssProvider: providers.WebSocketProvider;
@@ -74,7 +76,7 @@ class Mempool {
 
     if (isNaN(maxFeePerGas!)) {
       overloads = {
-        //   gasPrice,
+        // gasPrice,
         gasLimit: config.default_gas_limit,
         nonce: current_nonce,
         value: value,
@@ -90,6 +92,8 @@ class Mempool {
     }
 
     // console.log(methodName);
+
+    
 
     //Filter the addLiquidity method
 
@@ -145,7 +149,23 @@ class Mempool {
             if (buyTxData.success === true) {
               delete overloads.value;
               overloads["nonce"] += 1;
-              await approve(token, overloads);
+
+              const approveSuccess = await approve(token, overloads);
+
+              if (approveSuccess.success === true) {
+                let sellPath = [token, config.WETH_ADDRESS];
+                const amounts = await getAmounts(sellPath, token);
+
+                if (amounts?.amountOutMinTx! >= 0) {
+                  overloads["nonce"]! += 1;
+                  await swapExactTokensForETHSupportingFeeOnTransferTokens(
+                    sellPath,
+                    overloads,
+                    amounts?.amountIn,
+                    amounts?.amountOutMin
+                  );
+                }
+              }
             }
           }
         }

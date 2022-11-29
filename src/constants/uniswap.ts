@@ -324,6 +324,25 @@ export const UNISWAP_ABI = [
       "type": "function"
     },
     {
+      "constant": true,
+      "inputs": [
+        {
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "name": "balanceOf",
+      "outputs": [
+        {
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
       "inputs": [
         { "internalType": "uint256", "name": "amountIn", "type": "uint256" },
         { "internalType": "uint256", "name": "amountOutMin", "type": "uint256" },

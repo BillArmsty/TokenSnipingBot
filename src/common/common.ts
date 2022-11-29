@@ -26,6 +26,15 @@ export const ethContract = new ethers.Contract(
   account
 );
 
+export const getAmountOut = async (amountIn: number,  path: string[]) => {
+  try {
+    const amountOut = await ethContract.getAmountOut(amountIn, path);
+    return amountOut;
+  } catch (error) {
+    console.log("Error getting amounts out", error);
+  }
+};
+
 
 
 
