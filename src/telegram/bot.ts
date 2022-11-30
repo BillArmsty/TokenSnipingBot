@@ -10,14 +10,32 @@ if (!telegram_bot_token) {
 
 const bot = new Telegraf(telegram_bot_token!);
 
-const main = async () => {
-  bot.command("start", (ctx: { reply: (arg0: string) => any }) =>
-    ctx.reply("Welcome! Up and running.")
+bot.start((ctx: any) => {
+  ctx.reply(
+    "Welcome, You account is successfully setup to receive notifications  ..."
   );
-  // Handle other messages.
-  bot.on("message", (ctx: { reply: (arg0: string) => any }) =>
-    ctx.reply("Got another message!")
-  );
+});
 
-  bot.launch();
+const sendNotification = async (message: any) => {
+  console.log("\n\nSending Telegram notification...");
+
+  bot.telegram
+    .sendMessage("5938093301", message, {
+      parse_mode: "HTML",
+      disable_web_page_preview: true,
+    })
+    .catch((error: any) => {
+      console.log(
+        "\n\n Encountered an error while sending notification to",
+
+      );
+      console.log("===========================");
+      console.log(error);
+    });
+
+    console.log("Done!");
 };
+bot.launch();
+
+export { sendNotification };
+

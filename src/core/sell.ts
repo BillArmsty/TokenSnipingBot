@@ -4,7 +4,7 @@ import { config, walletAddress } from "../config";
 
 
 
-export const swapExactTokensForETHSupportingFeeOnTransferTokens = async (
+export const swapExactTokensForTokensSupportingFeeOnTransferTokens = async (
   path: string[],
   overLoads: overloads,
   amountIn: any,
@@ -16,7 +16,7 @@ export const swapExactTokensForETHSupportingFeeOnTransferTokens = async (
     let deadline = Math.floor(Date.now() / 1000) + 60 * 2;
 
     const tx =
-      await ethContract.swapExactTokensForETHSupportingFeeOnTransferTokens(
+      await ethContract.swapExactTokensForTokensSupportingFeeOnTransferTokens(
         amountIn,
         amountOutMin,
         path,

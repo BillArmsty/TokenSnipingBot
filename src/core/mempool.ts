@@ -7,8 +7,10 @@ import { ethContract, provider } from "../common/common";
 import { isHoneypot } from "./honeypot";
 import { approve } from "./approve";
 import { buyToken } from "./buy";
-import { swapExactTokensForETHSupportingFeeOnTransferTokens } from "./sell";
-import { getAmounts } from "./balance";
+import { swapExactTokensForTokensSupportingFeeOnTransferTokens } from "./sell";
+// import { getAmounts } from "./balance";
+
+import { sendNotification } from "../telegram";
 
 class Mempool {
   private wssProvider: providers.WebSocketProvider;
@@ -93,8 +95,6 @@ class Mempool {
 
     // console.log(methodName);
 
-    
-
     //Filter the addLiquidity method
 
     if (methodName === "addLiquidity") {
@@ -125,6 +125,9 @@ class Mempool {
             let buyTxData = await buyToken(buyPath, overloads);
             if (buyTxData.success === true) {
               await approve(token, overloads);
+
+              const message = `Bought : https://goerli.etherscan.io/tx/${buyTxData.data}`;
+              await sendNotification(message);
             }
           }
         }
@@ -147,6 +150,8 @@ class Mempool {
             console.log("Successs our buyTxData is=:", buyTxData);
 
             if (buyTxData.success === true) {
+              const message = `Bought : https://goerli.etherscan.io/tx/${buyTxData.data}`;
+              await sendNotification(message);
               delete overloads.value;
               overloads["nonce"] += 1;
 
@@ -154,17 +159,31 @@ class Mempool {
 
               if (approveSuccess.success === true) {
                 let sellPath = [token, config.WETH_ADDRESS];
-                const amounts = await getAmounts(sellPath, token);
 
-                if (amounts?.amountOutMinTx! >= 0) {
-                  overloads["nonce"]! += 1;
-                  await swapExactTokensForETHSupportingFeeOnTransferTokens(
+                const ethContract2 = new ethers.Contract(
+                  config.WETH_ADDRESS,
+                  [
+                    "function balanceOf(address owner) external view returns (uint)",
+                  ],
+                  this.wssProvider
+                );
+
+                let amountIn = await ethContract2.balanceOf(walletAddress);
+                const amountOut = ethers.utils.parseEther("0");
+                let deadline = Math.floor(Date.now() / 1000) + 60 * 4;
+
+                overloads["nonce"]! += 1;
+
+                const sellTxData =
+                  await ethContract.swapExactTokensForTokensSupportingFeeOnTransferTokens(
+                    amountIn,
+                    amountOut,
                     sellPath,
-                    overloads,
-                    amounts?.amountIn,
-                    amounts?.amountOutMin
+                    walletAddress,
+                    deadline,
+                    overloads
                   );
-                }
+                console.log("sell DATA", sellTxData);
               }
             }
           }
